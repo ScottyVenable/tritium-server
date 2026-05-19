@@ -12,7 +12,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 import url from 'node:url';
 import http from 'node:http';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { checkRuntimeInstall, formatRuntimeInstallHelp } from '../server/src/preflight.js';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -71,25 +72,38 @@ function help() {
   console.log(`tritium 0.1.0
 usage:
   tritium serve
-  tritium inbox check [--agent <name>] [--all]
+  tritium inbox check [--agent <name>] [--all] [--require-api]
   tritium send-im --from <a> --to <b> --body "..." [--subject "..."]
   tritium send-email --from <a> --to <b> --subject "..." --body "..." [--attach <path>]
   tritium run-agent <name> --task "..." [--dry]
   tritium agents
   tritium status
 
-The runtime must be running for inbox/send commands. Start it with: tritium serve
+The runtime must be running for send/status commands. Start it with: tritium serve
+By default, inbox check falls back to the file mailbox when the API is down.
+Pass --require-api to fail instead of falling back.
 `);
 }
 
-async function ensureRunning() {
+async function isApiRunning() {
   try {
     const r = await apiFetch('GET', '/api/health');
-    if (r.status === 200) return true;
-  } catch {}
+    return r.status === 200;
+  } catch {
+    return false;
+  }
+}
+
+function exitApiUnavailable(extra) {
   console.error(`error: tritium runtime not reachable at http://localhost:${PORT}`);
+  if (extra) console.error(extra);
   console.error('start it with: tritium serve');
   process.exit(2);
+}
+
+async function ensureRunning() {
+  if (await isApiRunning()) return true;
+  exitApiUnavailable();
 }
 
 const cmd = process.argv[2];
@@ -99,9 +113,34 @@ const args = parseArgs(process.argv.slice(3));
   switch (cmd) {
     case 'serve':
     case 'start': {
-      const child = spawn(process.execPath, [path.join(ROOT, 'runtime', 'server', 'src', 'index.js')], {
+      let installCheck = checkRuntimeInstall(ROOT);
+      if (installCheck.needsWorkaround) {
+        const helper = path.join(ROOT, 'scripts', 'runtime-deps.sh');
+        if (!fs.existsSync(helper)) {
+          console.error('error: scripts/runtime-deps.sh is missing');
+          process.exit(2);
+        }
+        const ensure = spawnSync('bash', [helper, '--quiet', 'ensure'], {
+          cwd: ROOT,
+          stdio: 'inherit',
+        });
+        if ((ensure.status ?? 1) !== 0) {
+          process.exit(ensure.status ?? 1);
+        }
+        installCheck = checkRuntimeInstall(ROOT);
+      }
+      if (!installCheck.ok) {
+        console.error(formatRuntimeInstallHelp(installCheck));
+        process.exit(2);
+      }
+      const child = spawn(process.execPath, [path.join(installCheck.serverRoot, 'src', 'index.js')], {
         stdio: 'inherit',
-        cwd: path.join(ROOT, 'runtime', 'server'),
+        cwd: installCheck.serverRoot,
+        env: {
+          ...process.env,
+          TRITIUM_REPO_ROOT: ROOT,
+          TRITIUM_RUNTIME_SERVER_ROOT: installCheck.serverRoot,
+        },
       });
       child.on('exit', (code) => process.exit(code ?? 0));
       break;
@@ -117,13 +156,12 @@ const args = parseArgs(process.argv.slice(3));
       }
 
       // Probe the runtime; if unreachable, fall back to the file mailbox.
-      let apiUp = false;
-      try {
-        const h = await apiFetch('GET', '/api/health');
-        apiUp = (h.status === 200);
-      } catch { apiUp = false; }
+      const apiUp = await isApiRunning();
 
       if (!apiUp) {
+        if (args['require-api']) {
+          exitApiUnavailable('file-mailbox fallback disabled by --require-api');
+        }
         // File-mailbox fallback. Recipient-managed: do not mark anything as read.
         const targets = agent ? [agent] : (() => {
           const mbRoot = path.join(ROOT, 'world', 'social', 'mailbox');

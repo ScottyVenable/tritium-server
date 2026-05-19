@@ -10,6 +10,7 @@
   },
   "scripts": {
     "start": "node src/index.js",
+    "doctor": "node src/preflight.js",
     "verify": "node src/verify.js",
     "cli": "node ../cli/tritium.js"
   },

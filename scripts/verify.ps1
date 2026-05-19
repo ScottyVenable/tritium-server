@@ -1,5 +1,5 @@
 # Verify a Tritium-OS checkout: toolchain, repo structure, agent coverage,
-# inbox CLI smoke test, and (warn-only) optional integrations.
+# live inbox CLI smoke test, and (warn-only) optional integrations.
 #
 # Exits 0 on PASS, 1 on FAIL. Pass -Quiet to suppress per-check OK lines.
 
@@ -131,9 +131,9 @@ if ($nodeStatus -eq 'OK' -and (Test-Path -LiteralPath $cliPath -PathType Leaf)) 
     $prev = Get-Location
     try {
         Set-Location $root
-        $null = & node 'runtime/cli/tritium.js' inbox check --agent sol 2>&1
-        if ($LASTEXITCODE -eq 0) { $inboxStatus = 'OK'; Write-Ok 'tritium inbox check --agent sol' }
-        else { $inboxStatus = 'FAIL'; Write-Fail "tritium inbox check --agent sol exited $LASTEXITCODE" }
+        $null = & node 'runtime/cli/tritium.js' inbox check --agent sol --require-api 2>&1
+        if ($LASTEXITCODE -eq 0) { $inboxStatus = 'OK'; Write-Ok 'tritium inbox check --agent sol --require-api' }
+        else { $inboxStatus = 'FAIL'; Write-Fail "tritium inbox check --agent sol --require-api exited $LASTEXITCODE" }
     } catch {
         $inboxStatus = 'FAIL'; Write-Fail "tritium inbox check threw: $_"
     } finally {
@@ -143,7 +143,7 @@ if ($nodeStatus -eq 'OK' -and (Test-Path -LiteralPath $cliPath -PathType Leaf)) 
 
 # --- ledger (warn only) ----------------------------------------------------
 $homeDir = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
-$ledgerPath = Join-Path $homeDir '.tritium-os/ledger/credits.db'
+$ledgerPath = Join-Path $homeDir '.tritium-os/ledger/ledger.db'
 if (Test-Path -LiteralPath $ledgerPath -PathType Leaf) {
     $ledgerStatus = "present at $ledgerPath"
     Write-Ok "ledger $ledgerPath"

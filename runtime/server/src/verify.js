@@ -6,10 +6,17 @@ import path from 'node:path';
 import fs from 'node:fs';
 import url from 'node:url';
 import { spawn } from 'node:child_process';
+import { checkRuntimeInstall, formatRuntimeInstallHelp } from './preflight.js';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..', '..');
+const installCheck = checkRuntimeInstall(ROOT);
 const PORT = 7331; // distinct from default to avoid clashing with a running instance
+
+if (!installCheck.ok) {
+  console.error(formatRuntimeInstallHelp(installCheck));
+  process.exit(2);
+}
 
 const TMP = path.resolve(ROOT, '.tritium-verify');
 fs.rmSync(TMP, { recursive: true, force: true });
@@ -33,10 +40,14 @@ const hadExisting = fs.existsSync(targetSettings);
 const backup = hadExisting ? fs.readFileSync(targetSettings, 'utf8') : null;
 fs.copyFileSync(settingsPath, targetSettings);
 
-const child = spawn(process.execPath, [path.join(__dirname, 'index.js')], {
-  cwd: path.join(ROOT, 'runtime', 'server'),
+const child = spawn(process.execPath, [path.join(installCheck.serverRoot, 'src', 'index.js')], {
+  cwd: installCheck.serverRoot,
   stdio: ['ignore', 'pipe', 'pipe'],
-  env: process.env,
+  env: {
+    ...process.env,
+    TRITIUM_REPO_ROOT: ROOT,
+    TRITIUM_RUNTIME_SERVER_ROOT: installCheck.serverRoot,
+  },
 });
 
 let serverOutput = '';
@@ -95,8 +106,8 @@ async function waitReady() {
     check('server boots and /api/health is ok', true);
 
     const agents = await req('GET', '/api/agents');
-    check('GET /api/agents returns 8 default roster entries',
-      agents.status === 200 && Array.isArray(agents.json) && agents.json.length === 8,
+    check('GET /api/agents returns 9 default roster entries',
+      agents.status === 200 && Array.isArray(agents.json) && agents.json.length === 9,
       `got ${agents.json?.length}`);
 
     const sent = await req('POST', '/api/im', { from: 'sol', to: 'vex', body: 'verify-test' });

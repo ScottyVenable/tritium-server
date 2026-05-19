@@ -42,10 +42,15 @@ Need a one-paragraph fragment for the loading screen, register: dry-witty.
 ## Live coordination
 
 ```bash
-cd /path/to/tritium/runtime/server && npm i && npm start
+bash /path/to/tritium/scripts/runtime-deps.sh ensure
+cd /path/to/tritium/runtime/server
+npm run doctor
+node ../cli/tritium.js serve
 ```
 
 The runner will fail-soft if the runtime isn't running — IMs simply won't be delivered, and the agent's text output is preserved verbatim.
+
+If the checkout lives on Android or other shared storage, `scripts/runtime-deps.sh ensure` will stage `runtime/server` under `~/.tritium-os/` and avoid the shared-storage symlink failure automatically.
 
 ## Security
 

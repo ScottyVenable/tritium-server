@@ -19,8 +19,10 @@ import { createApi } from './api.js';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
-const ROOT = path.resolve(__dirname, '..', '..', '..'); // tritium/
-const DASHBOARD_DIR = path.resolve(__dirname, '..', '..', 'dashboard');
+const ROOT = process.env.TRITIUM_REPO_ROOT
+  ? path.resolve(process.env.TRITIUM_REPO_ROOT)
+  : path.resolve(__dirname, '..', '..', '..');
+const DASHBOARD_DIR = path.join(ROOT, 'runtime', 'dashboard');
 
 const settings = loadSettings(ROOT);
 const port = settings.global.dashboard_port ?? 7330;

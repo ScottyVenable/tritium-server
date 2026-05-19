@@ -112,12 +112,13 @@ $stateDir    = Join-Path $tritiumHome 'state'
 $keysDir     = Join-Path $tritiumHome 'keys'
 $ledgerDir   = Join-Path $tritiumHome 'ledger'
 $ledgerDb    = Join-Path $ledgerDir 'ledger.db'
+$repoRootFile = Join-Path $stateDir 'repo-root'
 $envFile     = Join-Path $stateDir 'env'
 $mailboxRoot = Join-Path $repoRoot 'world\social\mailbox'
 
 $agents = @('bridge','jesse','lux','nova','robert','rook','scout','sol','vex')
 $v41    = @('tritium-crypt','tritium-open','tritium-close','tritium-cp','tritium-doctor','tier-auto','tritium-id','tritium-authorize')
-$helpers= @('setup-ledger.py','new-agent.sh','new-agent.ps1','package.sh','package.ps1','install-adapter.sh','install-adapter.ps1')
+$helpers= @('tritium.cmd','setup-ledger.py','new-agent.sh','new-agent.ps1','package.sh','package.ps1','install-adapter.sh','install-adapter.ps1')
 
 Write-Log ''
 Write-Log "+--- Tritium OS v$Version install ---"
@@ -150,6 +151,12 @@ foreach ($d in @($tritiumHome,$binDir,$stateDir,$keysDir,$ledgerDir)) {
         Write-Log "  mkdir  $d"
         Invoke-Step { New-Item -ItemType Directory -Path $d -Force | Out-Null } "mkdir $d"
     }
+}
+if ($DryRun) {
+    Write-Log "  [dry] record repo root -> $repoRootFile"
+} else {
+    Set-Content -Path $repoRootFile -Value $repoRoot -NoNewline
+    Write-Log "  repo   $repoRootFile"
 }
 
 # --- ledger ----------------------------------------------------------------

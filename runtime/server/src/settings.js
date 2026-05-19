@@ -3,17 +3,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const ROSTER = ['bridge', 'sol', 'vex', 'rook', 'robert', 'lux', 'nova', 'jesse'];
+const ROSTER = ['bridge', 'scout', 'sol', 'jesse', 'vex', 'rook', 'robert', 'lux', 'nova'];
 
 const ROLES = {
   bridge: 'Planner / Dispatcher / Watchdog',
+  scout:  'Baseline Agent',
   sol:    'Co-Creative Director and Lead Programmer',
+  jesse:  'Repository Manager / Community Coordinator',
   vex:    'Content & Lore Architect',
   rook:   'QA & Release Engineer',
   robert: 'Master Researcher',
   lux:    'Visuals & Art Direction Lead',
   nova:   'Gameplay Systems & Balancing Lead',
-  jesse:  'Repository Manager / Community Coordinator',
 };
 
 const DEFAULT_AGENT_STATS = {

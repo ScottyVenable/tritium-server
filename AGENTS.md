@@ -1,37 +1,25 @@
-# Tritium OS -- Agent Roster
+# Tritium OS Agent Roster
 
-This file is the authoritative list of named agents in Tritium OS v4.1.
+This file is a human-readable roster for the 9 named agents shipped in this repo.
 
-| Name   | Role                           | Tier | Model             |
-|--------|--------------------------------|------|-------------------|
-| Bridge | Team Lead, Dispatcher          | T1   | gemini-1.5-pro    |
-| Scout  | T0 Baseline, always-on         | T0   | gemini-3-flash    |
-| Sol    | Co-Creative Director, Lead Dev | T2   | claude-sonnet-4.6 |
-| Jesse  | Repository Manager             | T2   | claude-sonnet-4.6 |
-| Vex    | Content and Asset Architect    | T2   | claude-sonnet-4.6 |
-| Rook   | QA and Release Engineer        | T3   | claude-opus-4.7   |
+For canonical behavior, prompts, and operating rules, see `agents/<name>/agent.md`.
+Model selection can change in `SETTINGS.jsonc` and adapter config; do not treat any
+single model assignment in this file as authoritative.
 
-## Tier hierarchy
+| Name | Role | Primary lane |
+|---|---|---|
+| Bridge | Planner / dispatcher / watchdog | Task routing, decomposition, handoff quality |
+| Scout | Baseline agent | Routine lookups, status checks, lightweight requests |
+| Sol | Co-creative director / lead programmer | Code, CI, tooling, changelog, implementation |
+| Jesse | Repository manager | Issues, labels, milestones, board, repo hygiene |
+| Vex | Content & asset architect | Authored content, docs, lore, content structure |
+| Rook | QA & release engineer | Builds, CI failures, repro, release readiness |
+| Robert | Research specialist | External references, investigation, gap analysis |
+| Lux | Visuals & art direction lead | UI/UX direction, style guides, visual specs |
+| Nova | Systems & balance lead | Mechanics, progression, tuning, formulas |
 
-- T0 Scout   -- fast, lightweight, always-on baseline. Snap-back target.
-- T1 Bridge  -- coordinator only. Routes and delegates. No implementation.
-- T2 Specialists (Sol, Jesse, Vex) -- domain experts for code, repo, content.
-- T3 Rook    -- QA/release, most expensive. Only for build and CI work.
+## Notes
 
-## Snap-back
-
-After any T1-T3 session, `tier-auto snap` closes open vault payloads
-and returns the runtime to T0 (Scout). Bridge enforces Rule 0: pre-dispatch
-all T0-safe requests to Scout before escalating.
-
-## Agent configuration files
-
-Each agent has a spec at `.github/agents/<Name>.agent.md`.
-Scout also has a runtime directory at `agents/scout/`.
-
-## Adding agents
-
-1. Add entry to `data/registry/models.json`.
-2. Create `.github/agents/<Name>.agent.md`.
-3. Update this file.
-4. Update `CHANGELOG.md`.
+- The repo currently carries 9 agent directories under `agents/`.
+- `world/social/team/TEAM.md` documents handoffs and interaction patterns.
+- `scripts/new-agent.sh` and `scripts/new-agent.ps1` are the starting point for expanding the roster.

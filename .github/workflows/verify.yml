@@ -1,0 +1,97 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: runtime/server/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node runtime/cli/tritium.js --help
+          node runtime/server/cli/tritium.js --help
+
+          pushd runtime/server
+          npm ci
+          popd
+
+          node runtime/server/src/index.js &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:7330/api/health >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          curl -fsS http://127.0.0.1:7330/api/health >/dev/null
+          bash scripts/verify.sh
+
+      - name: Verify on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          node runtime/cli/tritium.js --help
+          node runtime/server/cli/tritium.js --help
+
+          Push-Location runtime/server
+          npm ci
+          Pop-Location
+
+          $server = Start-Process node -ArgumentList 'runtime/server/src/index.js' -PassThru
+          try {
+            for ($i = 0; $i -lt 30; $i++) {
+              try {
+                $resp = Invoke-WebRequest -Uri 'http://127.0.0.1:7330/api/health' -UseBasicParsing -TimeoutSec 2
+                if ($resp.StatusCode -eq 200) { break }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+
+            $resp = Invoke-WebRequest -Uri 'http://127.0.0.1:7330/api/health' -UseBasicParsing -TimeoutSec 5
+            if ($resp.StatusCode -ne 200) {
+              throw 'Runtime did not become ready.'
+            }
+
+            & ./scripts/verify.ps1
+            if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+            }
+          } finally {
+            if ($server -and -not $server.HasExited) {
+              Stop-Process -Id $server.Id -Force
+            }
+          }

@@ -24,6 +24,17 @@ parity, and the documentation aligned with the new structure.
 - **Agent metadata (Phase C).** YAML frontmatter added to `agents/scout/agent.md`; tool specs added to `agents/{robert,lux,nova}/agent.md` so all 9 agent.md files share the same shape.
 - **`tritium inbox check` file-mailbox fallback (Phase C).** When the runtime API at `localhost:7330` is unreachable, the CLI lists unread items from `world/social/mailbox/<agent>/` instead of erroring out.
 - **`scripts/verify.{sh,ps1}` expanded (Phase D).** Now checks Node 20+ / Python 3.11+ / git; full repo structure; all 9 mailboxes; all 9 `agent.md` files; full adapter coverage (3 × 9 = 27 prompts); and runs an inbox CLI smoke test.
+- **Launcher and CI hardening.**
+  - Added `runtime/server/cli/tritium.js` as a package-safe wrapper to the real CLI at `runtime/cli/tritium.js`.
+  - Added installed `tritium` launchers for Bash and Windows that resolve the repo root from Tritium state.
+  - Added a root GitHub Actions verify workflow for Linux and Windows.
+- **Runtime startup preflight.**
+  - Added `runtime/server/src/preflight.js` plus `npm run doctor` to detect missing runtime deps before `serve`.
+  - `tritium serve` now fails early with actionable guidance when `ws` / `better-sqlite3` are not installed.
+- **Storage-aware runtime dependency staging.**
+  - Added `scripts/runtime-deps.sh` with `ensure`, `path`, and `clean`.
+  - Standard filesystems keep `npm ci` in `runtime/server/`.
+  - Android/shared-storage checkouts stage `runtime/server/` under `~/.tritium-os/runtime-server/`, run `npm ci` there, and record the staged path for runtime startup.
 
 ### Changed
 - **Repo reorganization (Phase A).** Top-level layout flattened to reduce nesting:
@@ -40,6 +51,12 @@ parity, and the documentation aligned with the new structure.
 - `world/crew/README.txt` -- removed `instructions/` section; updated "ADDING A NEW AGENT" checklist to point to `agents/<name>/`; added explicit note that runtime definitions live in `agents/`, not here.
 - `world/crew/directory/TEMPLATE.md` -- updated cross-reference from `world/crew/instructions/<Name>.agent.md` to `agents/<name>/agent.md`.
 - `README.md` -- install section now leads with the unified `scripts/install.sh` entrypoint; clarified `agents/` vs `world/` two-layer split (core/runtime/technical vs living world).
+- `runtime/cli/tritium.js` now supports `inbox check --require-api`, so runtime-dependent checks fail honestly instead of silently falling back to file mailboxes.
+- Runtime docs now call out the shared-storage `npm ci` symlink blocker and direct users to `npm run doctor` before startup.
+- `tritium serve`, runtime preflight, and runtime smoke verify now resolve the staged runtime/server path automatically when the shared-storage workaround is active.
+- Runtime defaults and smoke tests now include Scout, matching the documented 9-agent roster.
+- `scripts/verify.sh` and `scripts/verify.ps1` now require the live runtime API for the inbox smoke test and consistently reference `ledger.db`.
+- `README.md` and `AGENTS.md` were trimmed and corrected to match the current 9-agent roster, runtime layout, and live team-path references.
 
 ### Removed
 - Empty `core/` directory (Phase A).

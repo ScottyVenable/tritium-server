@@ -10,7 +10,7 @@
 
 ## What is Tritium?
 
-Tritium is a portable, self-contained multi-agent workflow coordination layer you can drop into any repository or CLI environment. It ships an eight-role AI crew (Bridge, Sol, Vex, Rook, Robert, Lux, Nova, Jesse), a local SQLite message bus, a live dashboard at `localhost:7330`, a CLI, and drop-in adapters for VS Code Copilot, Claude CLI, Gemini CLI, and any OpenAI-compatible API. No cloud dependency required — everything runs on your machine.
+Tritium is a portable, self-contained multi-agent workflow coordination layer you can drop into a repository or local CLI environment. It ships a 9-agent roster (Bridge, Scout, Sol, Jesse, Vex, Rook, Robert, Lux, Nova), a local SQLite message bus, a live dashboard at `localhost:7330`, a CLI, and drop-in adapters for VS Code Copilot, Claude CLI, Gemini CLI, and OpenAI-compatible endpoints such as LM Studio.
 
 ---
 
@@ -18,46 +18,54 @@ Tritium is a portable, self-contained multi-agent workflow coordination layer yo
 
 | Agent | Role | Specialty |
 |---|---|---|
-| **Bridge** | Planner · Dispatcher · Watchdog | Decomposes requests, routes work to specialists, audits sub-agent prompts |
-| **Sol** | Lead Programmer | Implementation, architecture, automation, CI/CD |
-| **Vex** | Content Architect | Narrative text, content tables, authored documentation |
-| **Rook** | QA & Release Engineer | Build verification, reproduction cases, release gates |
-| **Robert** | Master Researcher | External knowledge, references, gap analysis |
-| **Lux** | Visuals & Art Direction | Style guides, UI/UX briefs, asset specifications |
-| **Nova** | Gameplay Systems | Mechanics design, progression curves, balance formulas |
-| **Jesse** | Repository Manager | Issues, project boards, milestones, labels, wiki |
+| **Bridge** | Planner · dispatcher · watchdog | Decomposes requests, routes work, audits handoffs |
+| **Scout** | Baseline agent | Lightweight status checks and routine lookups |
+| **Sol** | Lead programmer | Implementation, architecture, automation, CI/CD |
+| **Jesse** | Repository manager | Issues, project boards, milestones, labels, wiki |
+| **Vex** | Content architect | Narrative text, authored docs, content tables |
+| **Rook** | QA & release engineer | Build verification, reproduction cases, release gates |
+| **Robert** | Research specialist | External knowledge, references, gap analysis |
+| **Lux** | Visuals & art direction | Style guides, UI/UX briefs, asset specifications |
+| **Nova** | Systems design | Mechanics, progression, balance formulas |
+
+For the handoff matrix and interaction rules, see [world/social/team/TEAM.md](world/social/team/TEAM.md).
 
 ---
 
 ## What's in the Box
 
-```
+```text
 tritium/
-├── agents/                 # Runtime/technical layer — role definitions, system prompts, memory schema, portfolio
+├── agents/                 # Canonical agent definitions
 │   ├── bridge/
-│   ├── sol/
-│   ├── vex/
-│   ├── rook/
-│   ├── robert/
+│   ├── jesse/
 │   ├── lux/
 │   ├── nova/
-│   └── jesse/
+│   ├── robert/
+│   ├── rook/
+│   ├── scout/
+│   ├── sol/
+│   └── vex/
 ├── adapters/               # Drop-in integrations
-│   ├── github-copilot-local/
-│   ├── github-copilot-remote/
 │   ├── claude-cli/
 │   ├── gemini-cli/
+│   ├── github-copilot-local/
+│   ├── github-copilot-remote/
 │   └── openai-lmstudio/
-├── runtime/                # Node/TS server · dashboard SPA · CLI · JSON schemas
-├── runtime/heartbeat/         # Python service — keeps the world alive between sessions
-├── data/registry/          # Authoritative tier/model registry and credit ledger
-├── world/                  # Living world layer — crew journals, personalities, mailbox, locations
-├── team/                   # Roster · handoff matrix · correspondence · decision traces
-├── docs/                   # Architecture · usage guides · settings reference · troubleshooting
-├── scripts/                # install · package · verify · scaffold-new-agent
-├── SETTINGS.example.jsonc  # Master tunables — copy to SETTINGS.jsonc and edit
+├── data/registry/          # Model registry and ledger-related data
+├── docs/                   # Architecture, usage guides, troubleshooting
+├── runtime/                # Server, dashboard, CLI, schemas, heartbeat
+│   ├── cli/
+│   ├── dashboard/
+│   ├── heartbeat/
+│   ├── schemas/
+│   └── server/
+├── scripts/                # Install, verify, package, scaffolding, helpers
+├── world/                  # Snapshot of the crew's living world
+├── AGENTS.md
 ├── CHANGELOG.md
-└── LICENSE
+├── LICENSE
+└── SETTINGS.example.jsonc
 ```
 
 ---
@@ -66,28 +74,52 @@ tritium/
 
 ### 1. Install Tritium
 
-The unified installer detects your platform, checks requirements (Node 20+, Python 3.11+, git), sets up `~/.tritium-os/`, and ensures all 9 agent mailboxes exist. It is idempotent and non-invasive by default.
+The unified installer checks requirements (Node 20+, Python 3.11+, git), sets up `~/.tritium-os/`, records the repo root for the launcher, installs helper scripts into `~/.tritium-os/bin`, and ensures all 9 mailboxes exist.
 
 ```bash
-# Check what's needed (no install)
+# Check + local setup
 bash scripts/install.sh
 
-# Install missing deps + your choice of adapter CLIs
+# Optional deps and adapter CLIs
 bash scripts/install.sh --install-deps --with-claude --with-gemini --with-copilot
 
 # Windows
-powershell scripts/install.ps1 -InstallDeps -WithClaude -WithGemini -WithCopilot
+powershell -File scripts/install.ps1 -InstallDeps -WithClaude -WithGemini -WithCopilot
 ```
 
-Useful flags: `--profile core|full`, `--with-lmstudio` (detect-only), `--dry-run`, `--force`, `--quiet`. `scripts/setup.sh` is now a deprecation wrapper that forwards to `install.sh`.
+Useful flags: `--profile core|full`, `--with-lmstudio` (detect only), `--dry-run`, `--force`, `--quiet`.
 
-Verify the install at any time:
+### 2. Start the runtime
+
+```bash
+bash scripts/runtime-deps.sh ensure
+cd runtime/server
+npm run doctor
+```
+
+Then start the runtime with either the installed launcher or the repo-local CLI:
+
+```bash
+tritium serve
+# or
+node runtime/cli/tritium.js serve
+```
+
+Dashboard: `http://localhost:7330`
+
+`scripts/runtime-deps.sh` keeps the normal `runtime/server` install on standard filesystems. On Android or other shared-storage paths such as `/storage/...`, it stages `runtime/server` under `$HOME/.tritium-os/runtime-server/`, runs `npm ci` there, and `tritium serve` / `npm run doctor` will use that staged runtime automatically.
+
+### 3. Verify a live checkout
+
+The verify scripts now require the runtime API for the inbox smoke test.
 
 ```bash
 bash scripts/verify.sh
+# Windows
+powershell -File scripts/verify.ps1
 ```
 
-### 2. Drop an adapter into a target repo
+### 4. Install an adapter into a target repo
 
 | Environment | Shell | Command |
 |---|---|---|
@@ -95,73 +127,46 @@ bash scripts/verify.sh
 | VS Code GitHub Copilot (remote) | bash | `bash scripts/install-adapter.sh --target /path/to/repo --adapter github-copilot-remote` |
 | Claude CLI | bash | `bash scripts/install-adapter.sh --target /path/to/repo --adapter claude-cli` |
 | Gemini CLI | bash | `bash scripts/install-adapter.sh --target /path/to/repo --adapter gemini-cli` |
-| OpenAI / LM Studio | bash | `cd adapters/openai-lmstudio && npm i && npm run start` |
+| OpenAI-compatible runner (LM Studio, OpenAI, Ollama, etc.) | bash | `cd adapters/openai-lmstudio && npm install` |
 | Any of the above | PowerShell | Replace `scripts/install-adapter.sh` with `scripts\install-adapter.ps1` |
 
-The top-level `install.sh` / `install.ps1` also auto-delegate to `install-adapter.*` when `--target`/`--adapter` is passed, so older invocations keep working.
-
-### 3. Start the live coordination layer
-
-```bash
-cd runtime/server
-npm install
-npm start
-# Dashboard: http://localhost:7330
-```
+For the OpenAI-compatible runner, LM Studio or your chosen endpoint is a separate process; the Tritium adapter does not start it for you. See [docs/usage-api-openai-lmstudio.md](docs/usage-api-openai-lmstudio.md).
 
 ---
 
 ## Live Coordination Layer
 
-Tritium ships a local-first real-time coordination layer with no external dependencies:
-
 | Component | Description |
 |---|---|
 | **SQLite message bus** | Persistent store for IM threads, email, read receipts, agent registry |
-| **REST + WebSocket API** | Live message delivery; all dashboard routes are WebSocket-driven |
+| **REST + WebSocket API** | Local runtime API plus live dashboard updates |
 | **IM channel** | Short, threaded messages between agents and `@you` |
 | **Email channel** | Long-form structured messages with optional attachments |
-| **Dashboard** | Dark SPA at `http://localhost:7330` — routes: `/im` · `/email` · `/agents` · `/settings` · `/timeline` |
-| **`tritium` CLI** | `serve` · `inbox check` · `send-im` · `send-email` · `run-agent` |
+| **Dashboard** | Local SPA at `http://localhost:7330` |
+| **`tritium` CLI** | `serve`, `inbox check`, `send-im`, `send-email`, `run-agent`, `agents`, `status` |
+
+By default, `tritium inbox check` falls back to the file mailbox when the runtime is down. Pass `--require-api` when you need an honest live-runtime check.
 
 ---
 
 ## Master Settings
 
-Copy `SETTINGS.example.jsonc` to `SETTINGS.jsonc` and edit. Override path with `--settings /path/to/SETTINGS.jsonc`.
-
-<details>
-<summary>Show condensed example</summary>
+Copy `SETTINGS.example.jsonc` to `SETTINGS.jsonc` and edit.
 
 ```jsonc
 {
   "global": {
-    "default_model": "claude-sonnet-4.5",  // inherited by all agents unless overridden
+    "default_model": "claude-sonnet-4.5",
     "dashboard_port": 7330,
     "db_path": "./.tritium/tritium.db",
     "auto_archive_after_days": 30,
-    "premium_budget_hint": "medium",       // "low" | "medium" | "high" | "unlimited"
-    "dryRun": true                         // flip to false when ready to spend tokens
-  },
-  "agents": {
-    "bridge": {
-      "independence": 7,    // 0–10: how autonomously the agent operates
-      "verbosity": 3,       // 0–5: output length budget
-      "inbox_check_interval": 1,
-      "memory_write_quota": 20,
-      "portfolio_size_limit": 50,
-      "model_preference": null, // null = inherit global.default_model
-      "temperature": 0.2,
-      "enabled": true
-    }
-    // ... one block per agent; see SETTINGS.example.jsonc for the full set
+    "premium_budget_hint": "medium",
+    "dryRun": true
   }
 }
 ```
 
-</details>
-
-See [docs/settings-reference.md](docs/settings-reference.md) for every key and its effect.
+See [docs/settings-reference.md](docs/settings-reference.md) for the full schema.
 
 ---
 
@@ -174,87 +179,19 @@ See [docs/settings-reference.md](docs/settings-reference.md) for every key and i
 | [docs/usage-vscode-copilot.md](docs/usage-vscode-copilot.md) | VS Code Copilot adapter walkthrough |
 | [docs/usage-claude-cli.md](docs/usage-claude-cli.md) | Claude CLI adapter walkthrough |
 | [docs/usage-gemini-cli.md](docs/usage-gemini-cli.md) | Gemini CLI adapter walkthrough |
-| [docs/usage-api-openai-lmstudio.md](docs/usage-api-openai-lmstudio.md) | OpenAI / LM Studio adapter walkthrough |
+| [docs/usage-api-openai-lmstudio.md](docs/usage-api-openai-lmstudio.md) | OpenAI-compatible adapter walkthrough |
 | [docs/adding-a-new-agent.md](docs/adding-a-new-agent.md) | How to scaffold and register a new agent |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Common issues and fixes |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 
 ---
 
+## World snapshot
+
+[`world/`](world/README.md) is a snapshot of the team's shared social layer, journals, and locations. It is useful context, but it is not required to run the runtime.
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
-See [world/social/world/social/team/TEAM.md](world/social/world/social/team/TEAM.md) for the full handoff matrix and interaction patterns.
-
-## Live coordination layer
-
-Tritium ships a small Node/SQLite **message bus** so agents can chat and email each other while working:
-
-- **IM** — short, threaded, expected-soon replies. Real-time WebSocket stream.
-- **Email** — longer, structured, supports attachments (file paths or inline blobs).
-- **Dashboard** — local SPA at `http://localhost:7330` to watch the IM stream, browse the inbox, send messages as `@you`, and edit settings live.
-
-See [docs/architecture.md](docs/architecture.md) for the data model and [docs/settings-reference.md](docs/settings-reference.md) for tunables.
-
-## Master settings
-
-`SETTINGS.example.jsonc` is the single source of tunables. Copy to `SETTINGS.jsonc` and edit:
-
-```jsonc
-{
-  "global": {
-    "default_model": "claude-sonnet-4.5",
-    "dashboard_port": 7330,
-    "db_path": "./.tritium/tritium.db"
-  },
-  "agents": {
-    "bridge": { "independence": 7, "verbosity": 3, "inbox_check_interval": 1, "enabled": true },
-    "sol":    { "independence": 6, "verbosity": 4, "inbox_check_interval": 2, "enabled": true }
-    // ...
-  }
-}
-```
-
-Higher `independence` = fewer clarification questions back to you. See [docs/settings-reference.md](docs/settings-reference.md) for every key.
-
-## Scaling up
-
-Add a new agent in one command:
-
-```bash
-bash scripts/new-agent.sh <name> "<role-description>"
-```
-
-This scaffolds `agents/<name>/`, registers it in `world/social/world/social/team/TEAM.md`, adds a settings stub, and prepares prompts for each adapter.
-
-## Pre-release
-
-Build the zip + SHA-256:
-
-```bash
-bash scripts/package.sh
-# → dist/tritium-v0.1.0.zip
-# → dist/tritium-v0.1.0.zip.sha256
-```
-
-Smoke-test the runtime:
-
-```bash
-bash scripts/verify.sh
-```
-
-## Roadmap
-
-See [CHANGELOG.md](CHANGELOG.md). The dashboard ships read-write for IM/email and read-only for `SETTINGS.jsonc` reflection in v0.1; the editable settings panel and tunnel-mode documentation land in v0.2.
-
-— Tritium Team
-
-
-## The Team & Their World
-
-Tritium is built by a named team of agents — Bridge, Sol, Jesse, Vex, and
-Rook — working under Scotty as Creative Director. Their living world (journals,
-memories, mailbox, locations) is snapshotted in [world/](world/README.md).
-That folder is a backup of the team's shared space; it is not required to
-run the runtime.

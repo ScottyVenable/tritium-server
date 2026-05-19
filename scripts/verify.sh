@@ -15,7 +15,8 @@ for arg in "$@"; do
 usage: verify.sh [--quiet]
 
 Checks toolchain, repo layout, all 9 agents have agent.md + adapter prompts,
-mailboxes exist, and the inbox CLI works. Warns on optional integrations.
+mailboxes exist, and the live inbox CLI works against the runtime API. Warns on
+optional integrations.
 EOF
             exit 0 ;;
     esac
@@ -141,15 +142,15 @@ done
 # --- inbox CLI smoke test ---------------------------------------------------
 INBOX_STATUS="SKIP"
 if [ "$NODE_STATUS" = "OK" ] && [ -f "$ROOT/runtime/cli/tritium.js" ]; then
-    if (cd "$ROOT" && node runtime/cli/tritium.js inbox check --agent sol) >/dev/null 2>&1; then
-        INBOX_STATUS="OK"; _ok "tritium inbox check --agent sol"
+    if (cd "$ROOT" && node runtime/cli/tritium.js inbox check --agent sol --require-api) >/dev/null 2>&1; then
+        INBOX_STATUS="OK"; _ok "tritium inbox check --agent sol --require-api"
     else
-        INBOX_STATUS="FAIL"; _fail "tritium inbox check --agent sol exited non-zero"
+        INBOX_STATUS="FAIL"; _fail "tritium inbox check --agent sol --require-api exited non-zero"
     fi
 fi
 
 # --- ledger (warn only) -----------------------------------------------------
-LEDGER_PATH="${HOME:-$USERPROFILE}/.tritium-os/ledger/credits.db"
+LEDGER_PATH="${HOME:-$USERPROFILE}/.tritium-os/ledger/ledger.db"
 if [ -f "$LEDGER_PATH" ]; then
     LEDGER_STATUS="present at $LEDGER_PATH"
     _ok "ledger $LEDGER_PATH"
