@@ -1,7 +1,7 @@
-# Tritium OS -- canonical bootstrapper (PowerShell: Windows)
+# Tritium Team -- canonical bootstrapper (PowerShell: Windows)
 #
 # Default behaviour: detect platform, check requirements, set up
-# %USERPROFILE%\.tritium-os\{bin,state,keys,ledger}, init the ledger DB,
+# %USERPROFILE%\.tritium-team\{bin,state,keys,ledger}, init the ledger DB,
 # copy utility scripts to bin\, ensure agent mailboxes exist, print summary.
 #
 # Nothing invasive happens unless an opt-in flag is passed.
@@ -46,8 +46,8 @@ $repoRoot = (Resolve-Path (Join-Path $here '..')).Path
 
 # --- backward-compat dispatch ----------------------------------------------
 if ($Target -or $Adapter) {
-    Write-Host "[tritium] -Target/-Adapter detected; delegating to install-adapter.ps1"
-    & (Join-Path $here 'install-adapter.ps1') -Target $Target -Adapter $Adapter
+    Write-Host "[tritium] -Target/-Adapter detected; delegating to setup-team.ps1"
+    & (Join-Path $here 'setup-team.ps1') -Target $Target
     exit $LASTEXITCODE
 }
 
@@ -106,7 +106,7 @@ if (Test-Cmd 'git') {
 }
 
 # --- paths -----------------------------------------------------------------
-$tritiumHome = if ($env:TRITIUM_HOME) { $env:TRITIUM_HOME } else { Join-Path $env:USERPROFILE '.tritium-os' }
+$tritiumHome = if ($env:TRITIUM_HOME) { $env:TRITIUM_HOME } else { Join-Path $env:USERPROFILE '.tritium-team' }
 $binDir      = Join-Path $tritiumHome 'bin'
 $stateDir    = Join-Path $tritiumHome 'state'
 $keysDir     = Join-Path $tritiumHome 'keys'
@@ -117,10 +117,10 @@ $mailboxRoot = Join-Path $repoRoot 'world\social\mailbox'
 
 $agents = @('bridge','jesse','lux','nova','robert','rook','scout','sol','vex')
 $v41    = @('tritium-crypt','tritium-open','tritium-close','tritium-cp','tritium-doctor','tier-auto','tritium-id','tritium-authorize')
-$helpers= @('setup-ledger.py','new-agent.sh','new-agent.ps1','package.sh','package.ps1','install-adapter.sh','install-adapter.ps1')
+$helpers= @('setup-ledger.py','new-agent.sh','new-agent.ps1','package.sh','package.ps1','install-adapter.sh','install-adapter.ps1','setup-team.sh','setup-team.ps1')
 
 Write-Log ''
-Write-Log "+--- Tritium OS v$Version install ---"
+Write-Log "+--- Tritium Team v$Version install ---"
 Write-Log "  Platform   : $Platform"
 Write-Log "  Repo       : $repoRoot"
 Write-Log "  Tritium home: $tritiumHome"
@@ -330,7 +330,7 @@ if ($nodeStatus -ne 'OK' -or $pyStatus -ne 'OK' -or $gitStatus -ne 'OK') { $over
 
 if (-not $Quiet) {
     Write-Host ''
-    Write-Host 'Tritium-OS install summary'
+    Write-Host 'Tritium-Team install summary'
     Write-Host "- Platform: $Platform"
     Write-Host ('- ' + (Format-Status 'Node:'   $nodeStatus "v$nodeVer" $NodeHint))
     Write-Host ('- ' + (Format-Status 'Python:' $pyStatus   $pyVer      $PythonHint))

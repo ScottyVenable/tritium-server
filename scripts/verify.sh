@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify a Tritium-OS checkout: toolchain, repo structure, agent coverage,
+# Verify a Tritium-Team checkout: toolchain, repo structure, agent coverage,
 # inbox CLI smoke test, and (warn-only) optional integrations.
 #
 # Exits 0 on PASS, 1 on FAIL. Pass --quiet to suppress per-check OK lines.
@@ -149,7 +149,7 @@ if [ "$NODE_STATUS" = "OK" ] && [ -f "$ROOT/runtime/cli/tritium.js" ]; then
 fi
 
 # --- ledger (warn only) -----------------------------------------------------
-LEDGER_PATH="${HOME:-$USERPROFILE}/.tritium-os/ledger/credits.db"
+LEDGER_PATH="${HOME:-$USERPROFILE}/.tritium-team/ledger/credits.db"
 if [ -f "$LEDGER_PATH" ]; then
     LEDGER_STATUS="present at $LEDGER_PATH"
     _ok "ledger $LEDGER_PATH"
@@ -194,7 +194,7 @@ OVERALL="PASS"
 [ "${#FAILS[@]}" -gt 0 ] && OVERALL="FAIL"
 
 echo ""
-echo "Tritium-OS verify summary"
+echo "Tritium-Team verify summary"
 if [ "$NODE_STATUS" = "OK" ]; then echo "- Node:    found v$NODE_VER"
 elif [ "$NODE_STATUS" = "OLD" ]; then echo "- Node:    v$NODE_VER (TOO OLD, need >=20)"
 else echo "- Node:    MISSING (need >=20)"; fi

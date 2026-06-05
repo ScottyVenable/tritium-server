@@ -1,46 +1,37 @@
 # Usage: VS Code GitHub Copilot
 
-Tritium ships **two** Copilot adapters because GitHub treats local and remote `.github/` differently for custom agents.
+To drop the Tritium Team workflow into your project for use with **VS Code GitHub Copilot**, run the setup script:
 
-## 1. Local custom agents (run inside VS Code)
-
-```bash
-bash scripts/install-adapter.sh --target /path/to/repo --adapter github-copilot-local
+**Windows (PowerShell):**
+```powershell
+powershell scripts/setup-team.ps1 -Target "/path/to/your/project"
 ```
 
-Installs `.github/agents/*.agent.md` (one per Tritium agent), `.github/copilot-instructions.md` (Bridge as default), `.github/TEAM.md`, `.github/portfolios/`, `.github/team/`.
-
-In VS Code, after installing, you can:
-
-- `@Bridge` — invoke the planner.
-- `@Sol`, `@Vex`, `@Rook`, `@Robert`, `@Lux`, `@Nova`, `@Jesse` — invoke a specific specialist.
-
-## 2. Remote (synced to GitHub.com)
-
+**macOS/Linux (Bash):**
 ```bash
-bash scripts/install-adapter.sh --target /path/to/repo --adapter github-copilot-remote
+bash scripts/setup-team.sh --target "/path/to/your/project"
 ```
 
-Installs the GitHub-side `.github/`: CODEOWNERS keyed to agents, PR template with affected-agent checkbox, four issue templates (bug / feature / agent-handoff / research-request), `dependabot.yml`, `labels.md`, and a CI workflow `tritium-verify.yml` that runs the runtime smoke test on PRs touching `runtime/`.
+This installs:
 
-## Both at once
+- `.github/copilot-instructions.md` — declares the crew, instructs Copilot to act as Bridge by default, and how to load specialists from `agents/`.
+- `agents/` — contains all eight specialized agent prompts.
+- `world/` — sets up the mailboxes, locations, and direct communication logs.
+- `SETTINGS.jsonc` — configuration settings for the workspace team.
 
-In most repos you want both. Install local first, then remote — they don't overlap:
+## How Copilot Interacts with the Team
+
+VS Code GitHub Copilot automatically reads `.github/copilot-instructions.md` on startup:
+
+- **Default Agent (Bridge)**: When you prompt Copilot without mentioning a specific agent, it adopts the **Bridge** dispatcher personality.
+- **Specialists**: Mentions like `@Sol`, `@Vex`, `@Rook`, `@Robert`, `@Lux`, `@Nova`, or `@Jesse` prompt Copilot to load that agent's system prompt from `agents/<name>/agent.md` and act as that specialist.
+
+## Live Coordination
+
+Keep the Tritium Team coordinator server running in the background:
 
 ```bash
-bash scripts/install-adapter.sh --target /path/to/repo --adapter github-copilot-local
-bash scripts/install-adapter.sh --target /path/to/repo --adapter github-copilot-remote
+tritium serve
 ```
 
-## Live coordination
-
-Run the runtime alongside VS Code:
-
-```bash
-cd /path/to/tritium/runtime/server
-npm install
-npm start
-# dashboard at http://localhost:7330
-```
-
-Now Copilot custom agents can invoke `tritium inbox check` from their bash tool to read incoming messages while you work.
+This allows custom agents to run `tritium inbox check --agent <name>` using their terminal tool to read messages.

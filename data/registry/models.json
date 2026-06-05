@@ -1,5 +1,5 @@
 {
-  "_comment": "Tritium OS v4.1 -- data/registry/models.json. Source of truth for tier/model assignments.",
+  "_comment": "Tritium Team v4.1 -- data/registry/models.json. Source of truth for tier/model assignments.",
   "schema_version": "4.1",
   "snap_back_baseline": "scout",
   "default_tier": 0,

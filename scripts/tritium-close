@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tritium OS v4.1 -- tritium-close
+# Tritium Team v4.1 -- tritium-close
 # Re-encrypt .tritium_mirror/ payload back to vault and shred plaintext.
 # Logs tier_snapback. Never stages mirror paths.
 # Usage: tritium-close <payload-id>
@@ -9,7 +9,7 @@ set -euo pipefail
 PAYLOAD_ID="${1:-}"
 [ -z "$PAYLOAD_ID" ] && { printf '[FAIL] Usage: tritium-close <payload-id>\n' >&2; exit 1; }
 
-TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-os}"
+TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-team}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 [ -f "$HERE/tritium-crypt" ] || { printf '[FAIL] tritium-crypt not found at %s\n' "$HERE/tritium-crypt" >&2; exit 3; }

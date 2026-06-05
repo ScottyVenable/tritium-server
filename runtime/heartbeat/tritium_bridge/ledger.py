@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tritium OS v4.0 -- Ledger facade (SQLite).
+"""Tritium Team v4.0 -- Ledger facade (SQLite).
 
 Provides append-only event logging and key-value state storage
 for the tritium-bridge and associated CLI tools.
@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 
-_DEFAULT_DB = Path.home() / ".tritium-os" / "ledger" / "ledger.db"
+_DEFAULT_DB = Path.home() / ".tritium-team" / "ledger" / "ledger.db"
 
 
 class Ledger:

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Tritium OS -- canonical bootstrapper (Bash: Linux / macOS / Termux)
+# Tritium Team -- canonical bootstrapper (Bash: Linux / macOS / Termux)
 #
 # Default behaviour: detect platform, check requirements, set up
-# ~/.tritium-os/{bin,state,keys,ledger}, init the ledger DB, copy utility
+# ~/.tritium-team/{bin,state,keys,ledger}, init the ledger DB, copy utility
 # scripts to bin/, ensure agent mailboxes exist, print a summary block.
 #
 # Nothing invasive happens unless an opt-in flag is passed.
@@ -28,13 +28,13 @@ set -euo pipefail
 
 VERSION="4.2"
 
-# --- backward-compat dispatch to install-adapter.sh -------------------------
+# --- backward-compat dispatch to setup-team.sh -------------------------
 for a in "$@"; do
     case "$a" in
         --target|--adapter)
             HERE_BC="$(cd "$(dirname "$0")" && pwd)"
-            echo "[tritium] --target/--adapter detected; delegating to install-adapter.sh" >&2
-            exec bash "$HERE_BC/install-adapter.sh" "$@"
+            echo "[tritium] --target/--adapter detected; delegating to setup-team.sh" >&2
+            exec bash "$HERE_BC/setup-team.sh" "$@"
             ;;
     esac
 done
@@ -141,7 +141,7 @@ fi
 # --- paths ------------------------------------------------------------------
 HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$HERE/.." && pwd)"
-TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-os}"
+TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-team}"
 BIN_DIR="$TRITIUM_HOME/bin"
 STATE_DIR="$TRITIUM_HOME/state"
 KEYS_DIR="$TRITIUM_HOME/keys"
@@ -153,10 +153,10 @@ AGENTS=(bridge jesse lux nova robert rook scout sol vex)
 MAILBOX_ROOT="$REPO_ROOT/world/social/mailbox"
 
 V41_SCRIPTS="tritium-crypt tritium-open tritium-close tritium-cp tritium-doctor tier-auto tritium-id tritium-authorize"
-HELPER_SCRIPTS="setup-ledger.py new-agent.sh new-agent.ps1 package.sh package.ps1 install-adapter.sh install-adapter.ps1"
+HELPER_SCRIPTS="setup-ledger.py new-agent.sh new-agent.ps1 package.sh package.ps1 install-adapter.sh install-adapter.ps1 setup-team.sh setup-team.ps1"
 
 _log ""
-_log "+--- Tritium OS v${VERSION} install ---"
+_log "+--- Tritium Team v${VERSION} install ---"
 _log "  Platform   : $PLATFORM"
 _log "  Repo       : $REPO_ROOT"
 _log "  Tritium home: $TRITIUM_HOME"
@@ -454,7 +454,7 @@ OVERALL="READY"
 
 if [ "$QUIET" -eq 0 ]; then
     echo ""
-    echo "Tritium-OS install summary"
+    echo "Tritium-Team install summary"
     echo "- Platform: $PLATFORM"
     printf -- "- "; _status_line "Node:"   "$NODE_STATUS" "v$NODE_VER" "${PKG_HINT_NODE:-install Node 20+}"
     printf -- "- "; _status_line "Python:" "$PY_STATUS"   "$PY_VER"    "${PKG_HINT_PY:-install Python 3.11+}"

@@ -1,6 +1,6 @@
 # SECURITY -- tritium-crypt
 
-Tritium OS v4.1 encrypted vault specification.
+Tritium Team v4.1 encrypted vault specification.
 Author: Rook (QA/Release Engineer)
 
 ---
@@ -24,7 +24,7 @@ Nonces are generated via `os.urandom(12)`. Never reuse nonces.
 
 ## 3. Key management
 
-Keys live at `~/.tritium-os/keys/` (outside the repo, never staged):
+Keys live at `~/.tritium-team/keys/` (outside the repo, never staged):
 
 - `id.ed25519`    -- raw 32-byte Ed25519 seed. Used for signing manifests.
 - `wrap.x25519`   -- raw 32-byte X25519 private key. Used for KEK derivation.
@@ -74,7 +74,7 @@ world/vault/*.plain
 **/*.ed25519
 **/*.pem
 **/*.key
-~/.tritium-os/
+~/.tritium-team/
 ```
 
 ## 6. Dependency

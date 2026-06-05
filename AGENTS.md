@@ -1,6 +1,6 @@
-# Tritium OS -- Agent Roster
+# Tritium Team -- Agent Roster
 
-This file is the authoritative list of named agents in Tritium OS v4.1.
+This file is the authoritative list of named agents in Tritium Team v4.1.
 
 | Name   | Role                           | Tier | Model             |
 |--------|--------------------------------|------|-------------------|

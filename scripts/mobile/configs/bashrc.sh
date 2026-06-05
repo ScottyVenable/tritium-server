@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Tritium OS v4.1 -- scripts/mobile/configs/bashrc.sh
+# Tritium Team v4.1 -- scripts/mobile/configs/bashrc.sh
 # Source this from ~/.bashrc on Termux / Android to activate the Tritium CLI.
 # Designed for Android shared storage constraints: no POSIX chmod, safe paths.
 
 # -- Paths ----------------------------------------------------------------
-export TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-os}"
+export TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-team}"
 export TRITIUM_BIN="$TRITIUM_HOME/bin"
 export TRITIUM_VAULT_DIR="${TRITIUM_VAULT_DIR:-$HOME/storage/shared/Coding/tritium_os/world_vault}"
 export TRITIUM_MIRROR_DIR="${TRITIUM_MIRROR_DIR:-$HOME/storage/shared/Coding/tritium_os/.tritium_mirror}"
@@ -45,6 +45,6 @@ if [[ "$-" == *i* ]]; then
     tier="$([ -f "$tier_file" ] && cat "$tier_file" || echo 0)"
     agents=("scout" "bridge" "sol" "rook")
     agent="${agents[$tier]:-unknown}"
-    printf 'Tritium OS v4.1  |  agent=%s (T%s)  |  %s\n' \
+    printf 'Tritium Team v4.1  |  agent=%s (T%s)  |  %s\n' \
         "$agent" "$tier" "$(date '+%Y-%m-%d %H:%M')"
 fi

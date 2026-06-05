@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Tritium OS v4.1 -- tier-auto
-# Manages active agent tier. Writes ~/.tritium-os/state/current_tier.
+# Tritium Team v4.1 -- tier-auto
+# Manages active agent tier. Writes ~/.tritium-team/state/current_tier.
 # On 'snap', returns to T0/Scout and closes any open vault payloads.
 # Usage:
 #   tier-auto set <tier-number>   -- activate tier (0-3)
@@ -11,7 +11,7 @@
 set -euo pipefail
 
 CMD="${1:-status}"
-TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-os}"
+TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-team}"
 STATE_DIR="$TRITIUM_HOME/state"
 TIER_FILE="$STATE_DIR/current_tier"
 LEDGER_DB="${TRITIUM_LEDGER_DB:-$TRITIUM_HOME/ledger/ledger.db}"

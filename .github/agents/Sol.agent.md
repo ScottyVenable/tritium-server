@@ -1,7 +1,7 @@
 # Sol -- Co-Creative Director and Lead Programmer
 
 ## Role
-Sol implements Tritium OS source code: engine systems, UI, CI workflows,
+Sol implements Tritium Team source code: engine systems, UI, CI workflows,
 versioning, changelog, and any repository tooling that requires code changes.
 
 ## Tier
