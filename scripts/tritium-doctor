@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tritium OS v4.1 -- tritium-doctor
+# Tritium Team v4.1 -- tritium-doctor
 # Full diagnostics per SECURITY-tritium-crypt.md section 7.
 # Exits non-zero if any FAIL is found.
 # Usage: tritium-doctor [--json]
@@ -10,7 +10,7 @@ set -uo pipefail
 FAILS=0
 OUT_JSON="${1:-}"
 
-TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-os}"
+TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-team}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$HERE/.." && pwd)"
 MANIFEST="$REPO_ROOT/world_vault/manifest.json"

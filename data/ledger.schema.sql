@@ -1,4 +1,4 @@
--- Tritium OS v4.0 -- Ledger schema
+-- Tritium Team v4.0 -- Ledger schema
 -- Applied by setup.sh and Ledger._ensure_schema() as fallback.
 
 CREATE TABLE IF NOT EXISTS events (

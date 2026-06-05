@@ -1,8 +1,8 @@
-# Architecture -- Tritium OS v4.0 (Genesis)
+# Architecture -- Tritium Team v4.0 (Genesis)
 
 ## Overview
 
-Tritium OS v4.0 "Genesis" establishes the foundational runtime for a
+Tritium Team v4.0 "Genesis" establishes the foundational runtime for a
 multi-agent AI operating environment designed for Android (Termux) and Linux.
 
 ## Components
@@ -42,7 +42,7 @@ assignments, tier-auto configuration, and snap-back baseline.
 
 ### Ledger
 
-SQLite database at `~/.tritium-os/ledger/ledger.db`.
+SQLite database at `~/.tritium-team/ledger/ledger.db`.
 Schema at `data/ledger.schema.sql`.
 Facade at `bridge/tritium_bridge/ledger.py`.
 

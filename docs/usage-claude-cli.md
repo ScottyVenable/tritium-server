@@ -1,33 +1,42 @@
 # Usage: Claude CLI
 
+To drop the Tritium Team workflow into your project for use with the **Claude CLI**, run the setup script:
+
 ```bash
-bash scripts/install-adapter.sh --target /path/to/repo --adapter claude-cli
+# From the tritium-team repo
+bash scripts/setup-team.sh --target /path/to/your/project
 ```
 
 This installs:
 
-- `CLAUDE.md` — declares the crew, tells Claude to act as Bridge by default.
-- `agents/<name>.md` — one per Tritium agent.
+- `CLAUDE.md` — declares the crew, instructs Claude to act as Bridge by default, plan first, and switch agents.
+- `agents/` — contains all eight specialized agent prompts and histories.
+- `world/` — sets up the mailboxes, locations, and direct communication logs.
+- `SETTINGS.jsonc` — configuration settings for the workspace team.
 
 ## Slash commands (conventions, not plugins)
 
-- `/agent <name>` — switch active agent.
+Claude CLI will automatically read `CLAUDE.md` and follow these instructions:
+
+- `/agent <name>` — switch active agent (loads `agents/<name>/agent.md`).
 - `/plan "<request>"` — Bridge writes a plan to `world/social/team/interactions/`.
-- `/inbox` — `tritium inbox check --agent <current>`.
+- `/inbox` — runs `tritium inbox check --agent <current>` to read updates.
 - `/handoff <to> "<subject>"` — open a handoff packet.
 
 ## Live coordination
 
+Keep the Tritium Team coordinator server running in the background:
+
 ```bash
-cd /path/to/tritium/runtime/server && npm i && npm start
+tritium serve
 ```
 
-Tell Claude things like:
+When you prompt Claude CLI:
 
 > Check the Tritium inbox for sol.
 
-and Claude will run `tritium inbox check --agent sol` via its bash tool, then respond.
+Claude will run `tritium inbox check --agent sol` using its bash tool and report the results to you.
 
 ## Settings
 
-Claude reads `SETTINGS.jsonc` at session start. Honor each agent's `independence` (≥7 = decide, don't ask) and `inbox_check_interval`.
+Claude reads `SETTINGS.jsonc` at session start. Honor each agent's `independence` (≥7 means decide and act, don't ask) and `inbox_check_interval`.

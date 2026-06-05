@@ -30,7 +30,7 @@ This directory holds ciphertext only. No plaintext. No key material.
 - Bulk: AES-256-GCM, 96-bit nonce per payload (os.urandom(12)).
 - Key wrapping: ECDH(X25519) + HKDF-SHA-256 -> KEK -> AES-256-GCM wrap of payload key.
 - Signing: Ed25519 over manifest entry (sorted-key JSON).
-- Keys: ~/.tritium-os/keys/ -- hardware-bound, never committed.
+- Keys: ~/.tritium-team/keys/ -- hardware-bound, never committed.
 - Requires Python cryptography package: pip install cryptography
 
 ## Security

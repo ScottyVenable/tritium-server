@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tritium OS v4.1 -- tritium-open
+# Tritium Team v4.1 -- tritium-open
 # Decrypt a vault payload into .tritium_mirror/ for local editing.
 # Checks shield freshness. Logs to ledger. Never stages mirror paths.
 # Usage: tritium-open <payload-id>
@@ -10,7 +10,7 @@ set -euo pipefail
 PAYLOAD_ID="${1:-}"
 [ -z "$PAYLOAD_ID" ] && { printf '[FAIL] Usage: tritium-open <payload-id>\n' >&2; exit 1; }
 
-TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-os}"
+TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-team}"
 SHIELD_FILE="$TRITIUM_HOME/state/shield.ok"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 

@@ -1,4 +1,4 @@
-# Tritium OS v4.1 -- registry/credits.ledger
+# Tritium Team v4.1 -- registry/credits.ledger
 # Append-only AI credit monitoring ledger for 2026 budget cycle.
 # Format (event lines): ISO-8601-datetime | agent | tier | tokens_in | tokens_out | event_kind | note
 # Do NOT edit or delete existing lines. Append only.
@@ -6,7 +6,7 @@
 # See registry/models.json for tier definitions and cost classes.
 
 schema_version: 1.0
-project: tritium-os
+project: tritium-team
 budget_cycle: 2026
 created: 2025-07-21
 

@@ -1,4 +1,4 @@
-# Verify a Tritium-OS checkout: toolchain, repo structure, agent coverage,
+# Verify a Tritium-Team checkout: toolchain, repo structure, agent coverage,
 # inbox CLI smoke test, and (warn-only) optional integrations.
 #
 # Exits 0 on PASS, 1 on FAIL. Pass -Quiet to suppress per-check OK lines.
@@ -143,7 +143,7 @@ if ($nodeStatus -eq 'OK' -and (Test-Path -LiteralPath $cliPath -PathType Leaf)) 
 
 # --- ledger (warn only) ----------------------------------------------------
 $homeDir = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
-$ledgerPath = Join-Path $homeDir '.tritium-os/ledger/credits.db'
+$ledgerPath = Join-Path $homeDir '.tritium-team/ledger/credits.db'
 if (Test-Path -LiteralPath $ledgerPath -PathType Leaf) {
     $ledgerStatus = "present at $ledgerPath"
     Write-Ok "ledger $ledgerPath"
@@ -185,7 +185,7 @@ try {
 $overall = if ($script:Fails.Count -gt 0) { 'FAIL' } else { 'PASS' }
 
 Write-Host ''
-Write-Host 'Tritium-OS verify summary'
+Write-Host 'Tritium-Team verify summary'
 switch ($nodeStatus) {
     'OK'  { Write-Host "- Node:    found v$nodeVer" }
     'OLD' { Write-Host "- Node:    v$nodeVer (TOO OLD, need >=20)" }

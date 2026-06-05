@@ -1,4 +1,4 @@
-# Architecture -- Tritium OS v4.1 (Omni-Refactor)
+# Architecture -- Tritium Team v4.1 (Omni-Refactor)
 
 Extends v4.0 Genesis. See ARCHITECTURE-v4.md for base components.
 
@@ -52,7 +52,7 @@ CLI: `tritium-doctor`
 
 ### Shield
 
-`~/.tritium-os/state/shield.ok` -- timestamp file renewed by
+`~/.tritium-team/state/shield.ok` -- timestamp file renewed by
 `tritium-authorize`. tritium-open checks freshness (< 24h).
 
 ## Data flow

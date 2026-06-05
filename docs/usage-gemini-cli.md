@@ -1,27 +1,30 @@
-# Usage: Gemini CLI
+# Usage: Gemini CLI / Antigravity CLI
+
+To drop the Tritium Team workflow into your project for use with the **Gemini CLI** or **Antigravity CLI**, run the setup script:
 
 ```bash
-bash scripts/install-adapter.sh --target /path/to/repo --adapter gemini-cli
+# From the tritium-team repo
+bash scripts/setup-team.sh --target /path/to/your/project
 ```
 
-Installs:
+This installs:
 
-- `GEMINI.md` — crew declaration, default-Bridge instruction.
-- `.gemini/settings.json` — tool-allow list including `tritium`, `git`, `node`, `npm`.
-- `agents/<name>.md` — per-agent prompts.
+- `.antigravityrules` — rules file for the Antigravity CLI.
+- `GEMINI.md` — crew declaration and default-Bridge instruction for Gemini CLI.
+- `agents/` — contains all eight specialized agent prompts and histories.
+- `world/` — sets up the mailboxes, locations, and direct communication logs.
+- `SETTINGS.jsonc` — configuration settings for the workspace team.
 
-## Switch agent
+## Switch Agent
 
-Tell Gemini: *"Switch to agent vex"* or *"Act as Sol".* Gemini loads `agents/<name>.md` and continues.
+Tell Gemini or Antigravity: *"Switch to agent vex"* or *"Act as Sol".* The assistant will load `agents/<name>/agent.md` and continue.
 
-## Live coordination
+## Live Coordination
+
+Keep the Tritium Team coordinator server running in the background:
 
 ```bash
-cd /path/to/tritium/runtime/server && npm i && npm start
+tritium serve
 ```
 
-Then prompt: *"Run tritium inbox check for sol".*
-
-## Notes
-
-Gemini CLI is younger than Claude CLI, so the slash-command surface is less stable. Tritium's adapter avoids depending on plugin-style features.
+Then prompt the assistant: *"Run tritium inbox check for sol"* or ask it to scan the mailbox under `world/social/mailbox/sol/`.

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Tritium OS v4.1 -- tritium-authorize
-# Renew the shield token (stamps ~/.tritium-os/state/shield.ok with current time).
+# Tritium Team v4.1 -- tritium-authorize
+# Renew the shield token (stamps ~/.tritium-team/state/shield.ok with current time).
 # Replace body with real auth logic (passphrase, biometric, etc.) as needed.
 
 set -euo pipefail
-TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-os}"
+TRITIUM_HOME="${TRITIUM_HOME:-$HOME/.tritium-team}"
 STATE_DIR="$TRITIUM_HOME/state"
 SHIELD="$STATE_DIR/shield.ok"
 mkdir -p "$STATE_DIR"

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Tritium OS v4.1 -- tritium-cp: ASCII control panel."""
+"""Tritium Team v4.1 -- tritium-cp: ASCII control panel."""
 from __future__ import annotations
 import json, os, subprocess, sys
 from pathlib import Path
 from datetime import datetime
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TRITIUM_HOME = Path(os.environ.get("TRITIUM_HOME", Path.home() / ".tritium-os"))
+TRITIUM_HOME = Path(os.environ.get("TRITIUM_HOME", Path.home() / ".tritium-team"))
 
 REGISTRY   = REPO_ROOT / "registry" / "models.json"
 MANIFEST   = REPO_ROOT / "world_vault" / "manifest.json"
