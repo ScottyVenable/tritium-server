@@ -13,6 +13,21 @@ $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = (Resolve-Path (Join-Path $here '..')).Path
+$tritiumHome = if ($env:TRITIUM_HOME) { $env:TRITIUM_HOME } else { Join-Path $env:USERPROFILE '.tritium-team' }
+
+# Determine source template paths dynamically
+$repoAgents = Join-Path $repoRoot "agents"
+if (Test-Path $repoAgents) {
+    $srcAgents   = $repoAgents
+    $srcWorld    = Join-Path $repoRoot "world"
+    $srcSettings = Join-Path $repoRoot "SETTINGS.example.jsonc"
+    $srcAdapters = Join-Path $repoRoot "adapters"
+} else {
+    $srcAgents   = Join-Path $tritiumHome "templates\agents"
+    $srcWorld    = Join-Path $tritiumHome "templates\world"
+    $srcSettings = Join-Path $tritiumHome "templates\SETTINGS.example.jsonc"
+    $srcAdapters = Join-Path $tritiumHome "templates\adapters"
+}
 
 if (-not (Test-Path $Target)) {
     New-Item -ItemType Directory -Path $Target -Force | Out-Null
@@ -23,7 +38,7 @@ Write-Host ""
 Write-Host "===================================================================="
 Write-Host "                  TRITIUM TEAM WORKFLOW INITIALIZER                 "
 Write-Host "===================================================================="
-Write-Host "  Source Template : $repoRoot"
+Write-Host "  Source Templates: $srcAgents"
 Write-Host "  Target Project  : $targetPath"
 Write-Host ""
 
@@ -70,22 +85,21 @@ function Copy-Dir ([string]$srcDir, [string]$dstDir) {
 
 # 1. Copy Agents Template
 Write-Host "Step 1: Installing Agent Personalities and Schemas..."
-Copy-Dir (Join-Path $repoRoot "agents") (Join-Path $targetPath "agents")
+Copy-Dir $srcAgents (Join-Path $targetPath "agents")
 
 # 2. Copy World/Memory Template
 Write-Host ""
 Write-Host "Step 2: Installing World Memory and Mailbox Systems..."
-Copy-Dir (Join-Path $repoRoot "world") (Join-Path $targetPath "world")
+Copy-Dir $srcWorld (Join-Path $targetPath "world")
 
 # 3. Setup Settings File
 Write-Host ""
 Write-Host "Step 3: Configuring Master Settings..."
 $settingsDst = Join-Path $targetPath "SETTINGS.jsonc"
-$settingsSrc = Join-Path $repoRoot "SETTINGS.example.jsonc"
 if (Test-Path $settingsDst) {
     Write-Host "  [skipped]   SETTINGS.jsonc already exists"
 } else {
-    Copy-Item $settingsSrc $settingsDst
+    Copy-Item $srcSettings $settingsDst
     Write-Host "  [created]   SETTINGS.jsonc (default template copied)"
 }
 
@@ -95,7 +109,7 @@ Write-Host "Step 4: Writing AI Tool Integration Adapters..."
 
 # 4.a Claude CLI (CLAUDE.md)
 $claudeDst = Join-Path $targetPath "CLAUDE.md"
-$claudeSrc = Join-Path $repoRoot "adapters\claude-cli\CLAUDE.md"
+$claudeSrc = Join-Path $srcAdapters "claude-cli\CLAUDE.md"
 if (Test-Path $claudeSrc) {
     Copy-Item $claudeSrc $claudeDst -Force
     Write-Host "  [installed] CLAUDE.md (Claude CLI adapter)"
@@ -103,7 +117,7 @@ if (Test-Path $claudeSrc) {
 
 # 4.b VS Code Cline (.clinerules)
 $clineDst = Join-Path $targetPath ".clinerules"
-$clineSrc = Join-Path $repoRoot "adapters\cline\.clinerules"
+$clineSrc = Join-Path $srcAdapters "cline\.clinerules"
 if (Test-Path $clineSrc) {
     Copy-Item $clineSrc $clineDst -Force
     Write-Host "  [installed] .clinerules (VS Code Cline adapter)"
@@ -111,7 +125,7 @@ if (Test-Path $clineSrc) {
 
 # 4.c Cursor (.cursorrules)
 $cursorDst = Join-Path $targetPath ".cursorrules"
-$cursorSrc = Join-Path $repoRoot "adapters\cursor\.cursorrules"
+$cursorSrc = Join-Path $srcAdapters "cursor\.cursorrules"
 if (Test-Path $cursorSrc) {
     Copy-Item $cursorSrc $cursorDst -Force
     Write-Host "  [installed] .cursorrules (Cursor editor adapter)"
@@ -119,13 +133,13 @@ if (Test-Path $cursorSrc) {
 
 # 4.d Antigravity / Gemini CLI (.antigravityrules and GEMINI.md)
 $antigravityDst = Join-Path $targetPath ".antigravityrules"
-$antigravitySrc = Join-Path $repoRoot "adapters\antigravity\.antigravityrules"
+$antigravitySrc = Join-Path $srcAdapters "antigravity\.antigravityrules"
 if (Test-Path $antigravitySrc) {
     Copy-Item $antigravitySrc $antigravityDst -Force
     Write-Host "  [installed] .antigravityrules (Antigravity CLI adapter)"
 }
 $geminiDst = Join-Path $targetPath "GEMINI.md"
-$geminiSrc = Join-Path $repoRoot "adapters\gemini-cli\GEMINI.md"
+$geminiSrc = Join-Path $srcAdapters "gemini-cli\GEMINI.md"
 if (Test-Path $geminiSrc) {
     Copy-Item $geminiSrc $geminiDst -Force
     Write-Host "  [installed] GEMINI.md (Gemini CLI adapter)"
@@ -135,7 +149,7 @@ if (Test-Path $geminiSrc) {
 $copilotDir = Join-Path $targetPath ".github"
 if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Path $copilotDir -Force | Out-Null }
 $copilotDst = Join-Path $copilotDir "copilot-instructions.md"
-$copilotSrc = Join-Path $repoRoot "adapters\github-copilot-local\.github\copilot-instructions.md"
+$copilotSrc = Join-Path $srcAdapters "github-copilot-local\.github\copilot-instructions.md"
 if (Test-Path $copilotSrc) {
     Copy-Item $copilotSrc $copilotDst -Force
     Write-Host "  [installed] .github/copilot-instructions.md (GitHub Copilot adapter)"

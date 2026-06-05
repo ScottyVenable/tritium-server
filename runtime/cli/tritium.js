@@ -71,6 +71,7 @@ function help() {
   console.log(`tritium 0.1.0
 usage:
   tritium serve
+  tritium init [--target <path>] [--force]     - initialize team workflow in a project.
   tritium inbox check [--agent <name>] [--all]
   tritium send-im --from <a> --to <b> --body "..." [--subject "..."]
   tritium send-email --from <a> --to <b> --subject "..." --body "..." [--attach <path>]
@@ -78,7 +79,7 @@ usage:
   tritium agents
   tritium status
 
-The runtime must be running for inbox/send commands. Start it with: tritium serve
+The runtime must be running for inbox/send/agents commands. Start it with: tritium serve
 `);
 }
 
@@ -102,6 +103,26 @@ const args = parseArgs(process.argv.slice(3));
       const child = spawn(process.execPath, [path.join(ROOT, 'runtime', 'server', 'src', 'index.js')], {
         stdio: 'inherit',
         cwd: path.join(ROOT, 'runtime', 'server'),
+      });
+      child.on('exit', (code) => process.exit(code ?? 0));
+      break;
+    }
+
+    case 'init':
+    case 'setup': {
+      const target = args.target || args._[0] || '.';
+      const isWindows = process.platform === 'win32';
+      const scriptName = isWindows ? 'setup-team.ps1' : 'setup-team.sh';
+      const scriptPath = path.join(ROOT, 'scripts', scriptName);
+      
+      const shellCmd = isWindows ? 'powershell' : 'bash';
+      const procArgs = isWindows 
+        ? ['-File', scriptPath, '-Target', target, args.force ? '-Force' : '']
+        : [scriptPath, '--target', target, args.force ? '--force' : ''];
+      
+      const child = spawn(shellCmd, procArgs.filter(Boolean), {
+        stdio: 'inherit',
+        shell: true,
       });
       child.on('exit', (code) => process.exit(code ?? 0));
       break;

@@ -108,21 +108,31 @@ foreach ($a in $agents) {
     }
 }
 
-$claudeOk = 0; $geminiOk = 0; $copilotOk = 0
-foreach ($a in $agents) {
-    $p1 = Join-Path $root "adapters/claude-cli/agents/$a.md"
-    if (Test-Path -LiteralPath $p1 -PathType Leaf) { $claudeOk++; Write-Ok "adapter claude-cli/agents/$a.md" }
-    else { Write-Fail "missing adapters/claude-cli/agents/$a.md" }
+$claudeOk = 0; $geminiOk = 0; $copilotOk = 0; $clineOk = 0; $cursorOk = 0; $antigravityOk = 0
 
-    $p2 = Join-Path $root "adapters/gemini-cli/agents/$a.md"
-    if (Test-Path -LiteralPath $p2 -PathType Leaf) { $geminiOk++; Write-Ok "adapter gemini-cli/agents/$a.md" }
-    else { Write-Fail "missing adapters/gemini-cli/agents/$a.md" }
+$p_claude = Join-Path $root "adapters/claude-cli/CLAUDE.md"
+if (Test-Path -LiteralPath $p_claude -PathType Leaf) { $claudeOk = 1; Write-Ok "adapter claude-cli/CLAUDE.md" }
+else { Write-Fail "missing adapters/claude-cli/CLAUDE.md" }
 
-    $cap = $a.Substring(0,1).ToUpper() + $a.Substring(1)
-    $p3 = Join-Path $root "adapters/github-copilot-local/.github/agents/$cap.agent.md"
-    if (Test-Path -LiteralPath $p3 -PathType Leaf) { $copilotOk++; Write-Ok "adapter github-copilot-local/.github/agents/$cap.agent.md" }
-    else { Write-Fail "missing adapters/github-copilot-local/.github/agents/$cap.agent.md" }
-}
+$p_gemini = Join-Path $root "adapters/gemini-cli/GEMINI.md"
+if (Test-Path -LiteralPath $p_gemini -PathType Leaf) { $geminiOk = 1; Write-Ok "adapter gemini-cli/GEMINI.md" }
+else { Write-Fail "missing adapters/gemini-cli/GEMINI.md" }
+
+$p_copilot = Join-Path $root "adapters/github-copilot-local/.github/copilot-instructions.md"
+if (Test-Path -LiteralPath $p_copilot -PathType Leaf) { $copilotOk = 1; Write-Ok "adapter github-copilot-local/.github/copilot-instructions.md" }
+else { Write-Fail "missing adapters/github-copilot-local/.github/copilot-instructions.md" }
+
+$p_cline = Join-Path $root "adapters/cline/.clinerules"
+if (Test-Path -LiteralPath $p_cline -PathType Leaf) { $clineOk = 1; Write-Ok "adapter cline/.clinerules" }
+else { Write-Fail "missing adapters/cline/.clinerules" }
+
+$p_cursor = Join-Path $root "adapters/cursor/.cursorrules"
+if (Test-Path -LiteralPath $p_cursor -PathType Leaf) { $cursorOk = 1; Write-Ok "adapter cursor/.cursorrules" }
+else { Write-Fail "missing adapters/cursor/.cursorrules" }
+
+$p_antigravity = Join-Path $root "adapters/antigravity/.antigravityrules"
+if (Test-Path -LiteralPath $p_antigravity -PathType Leaf) { $antigravityOk = 1; Write-Ok "adapter antigravity/.antigravityrules" }
+else { Write-Fail "missing adapters/antigravity/.antigravityrules" }
 
 # --- inbox CLI smoke test --------------------------------------------------
 $inboxStatus = 'SKIP'
@@ -199,7 +209,7 @@ switch ($pyStatus) {
 if ($gitVer) { Write-Host "- Git:     found $gitVer" } else { Write-Host '- Git:     MISSING' }
 Write-Host "- Mailboxes: $mailboxPresent/9 present"
 Write-Host "- Agent docs: $agentMdPresent/9 present"
-Write-Host "- Adapters: claude-cli $claudeOk/9, gemini-cli $geminiOk/9, copilot-local $copilotOk/9"
+Write-Host "- Adapters: claude-cli=$claudeOk, gemini-cli=$geminiOk, copilot-local=$copilotOk, cline=$clineOk, cursor=$cursorOk, antigravity=$antigravityOk"
 Write-Host "- Inbox CLI: $inboxStatus"
 Write-Host "- Ledger:  $ledgerStatus"
 Write-Host '- Optional integrations:'

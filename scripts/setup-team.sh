@@ -2,11 +2,7 @@
 # Tritium Team -- Workflow Setup Bootstrapper (Bash)
 #
 # Sets up the Tritium Team workflow structure in a target repository.
-# Drops in the agents, world/memory layers, and configures adapter rules
-# for Claude CLI, VS Code Cline, Cursor, Antigravity, and GitHub Copilot.
-#
-# Usage:
-#   bash scripts/setup-team.sh --target /path/to/your-project
+# Drops in the agents, world/memory layers, and configures adapter rules.
 #
 
 set -euo pipefail
@@ -33,6 +29,20 @@ NC='\033[0m' # No Color
 # Resolve paths
 here="$(cd "$(dirname "$0")" && pwd)"
 repo_root="$(cd "$here/.." && pwd)"
+tritium_home="${TRITIUM_HOME:-$HOME/.tritium-team}"
+
+# Determine template directories dynamically
+if [ -d "$repo_root/agents" ]; then
+  src_agents="$repo_root/agents"
+  src_world="$repo_root/world"
+  src_settings="$repo_root/SETTINGS.example.jsonc"
+  src_adapters="$repo_root/adapters"
+else
+  src_agents="$tritium_home/templates/agents"
+  src_world="$tritium_home/templates/world"
+  src_settings="$tritium_home/templates/SETTINGS.example.jsonc"
+  src_adapters="$tritium_home/templates/adapters"
+fi
 
 if [ ! -d "$target" ]; then
   mkdir -p "$target"
@@ -43,7 +53,7 @@ echo -e ""
 echo -e "${CYAN}╔════════════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║                  TRITIUM TEAM WORKFLOW INITIALIZER                 ║${NC}"
 echo -e "${CYAN}╚════════════════════════════════════════════════════════════════════╝${NC}"
-echo -e "  Source Template : ${GRAY}$repo_root${NC}"
+echo -e "  Source Templates: ${GRAY}$src_agents${NC}"
 echo -e "  Target Project  : ${GRAY}$target_path${NC}"
 echo -e ""
 
@@ -58,12 +68,9 @@ copy_dir() {
   
   mkdir -p "$dst"
   
-  # Copy files using find to respect exclude patterns
   find "$src" -type f | while read -r file; do
-    # Skip .bak files
     [[ "$file" == *.bak ]] && continue
     
-    # Calculate relative path
     rel="${file#$src/}"
     dest_file="$dst/$rel"
     dest_dir="$(dirname "$dest_file")"
@@ -85,21 +92,20 @@ copy_dir() {
 }
 
 # 1. Copy Agents Template
-echo -e "Step 1: Installing Agent Personalities & Schemas..."
-copy_dir "$repo_root/agents" "$target_path/agents"
+echo -e "Step 1: Installing Agent Personalities and Schemas..."
+copy_dir "$src_agents" "$target_path/agents"
 
 # 2. Copy World/Memory Template
-echo -e "\nStep 2: Installing World Memory & Mailbox Systems..."
-copy_dir "$repo_root/world" "$target_path/world"
+echo -e "\nStep 2: Installing World Memory and Mailbox Systems..."
+copy_dir "$src_world" "$target_path/world"
 
 # 3. Setup Settings File
 echo -e "\nStep 3: Configuring Master Settings..."
 settings_dst="$target_path/SETTINGS.jsonc"
-settings_src="$repo_root/SETTINGS.example.jsonc"
 if [ -f "$settings_dst" ]; then
   echo -e "  ${GRAY}[skipped]${NC}   SETTINGS.jsonc already exists"
 else
-  cp "$settings_src" "$settings_dst"
+  cp "$src_settings" "$settings_dst"
   echo -e "  ${GREEN}[created]${NC}   SETTINGS.jsonc (default template copied)"
 fi
 
@@ -107,37 +113,37 @@ fi
 echo -e "\nStep 4: Writing AI Tool Integration Adapters..."
 
 # 4.a Claude CLI (CLAUDE.md)
-if [ -f "$repo_root/adapters/claude-cli/CLAUDE.md" ]; then
-  cp -f "$repo_root/adapters/claude-cli/CLAUDE.md" "$target_path/CLAUDE.md"
+if [ -f "$src_adapters/claude-cli/CLAUDE.md" ]; then
+  cp -f "$src_adapters/claude-cli/CLAUDE.md" "$target_path/CLAUDE.md"
   echo -e "  ${GREEN}[installed]${NC} CLAUDE.md (Claude CLI adapter)"
 fi
 
 # 4.b VS Code Cline (.clinerules)
-if [ -f "$repo_root/adapters/cline/.clinerules" ]; then
-  cp -f "$repo_root/adapters/cline/.clinerules" "$target_path/.clinerules"
+if [ -f "$src_adapters/cline/.clinerules" ]; then
+  cp -f "$src_adapters/cline/.clinerules" "$target_path/.clinerules"
   echo -e "  ${GREEN}[installed]${NC} .clinerules (VS Code Cline adapter)"
 fi
 
 # 4.c Cursor (.cursorrules)
-if [ -f "$repo_root/adapters/cursor/.cursorrules" ]; then
-  cp -f "$repo_root/adapters/cursor/.cursorrules" "$target_path/.cursorrules"
+if [ -f "$src_adapters/cursor/.cursorrules" ]; then
+  cp -f "$src_adapters/cursor/.cursorrules" "$target_path/.cursorrules"
   echo -e "  ${GREEN}[installed]${NC} .cursorrules (Cursor editor adapter)"
 fi
 
-# 4.d Antigravity / Gemini CLI (.antigravityrules & GEMINI.md)
-if [ -f "$repo_root/adapters/antigravity/.antigravityrules" ]; then
-  cp -f "$repo_root/adapters/antigravity/.antigravityrules" "$target_path/.antigravityrules"
+# 4.d Antigravity / Gemini CLI (.antigravityrules and GEMINI.md)
+if [ -f "$src_adapters/antigravity/.antigravityrules" ]; then
+  cp -f "$src_adapters/antigravity/.antigravityrules" "$target_path/.antigravityrules"
   echo -e "  ${GREEN}[installed]${NC} .antigravityrules (Antigravity CLI adapter)"
 fi
-if [ -f "$repo_root/adapters/gemini-cli/GEMINI.md" ]; then
-  cp -f "$repo_root/adapters/gemini-cli/GEMINI.md" "$target_path/GEMINI.md"
+if [ -f "$src_adapters/gemini-cli/GEMINI.md" ]; then
+  cp -f "$src_adapters/gemini-cli/GEMINI.md" "$target_path/GEMINI.md"
   echo -e "  ${GREEN}[installed]${NC} GEMINI.md (Gemini CLI adapter)"
 fi
 
 # 4.e VS Code GitHub Copilot (.github/copilot-instructions.md)
 mkdir -p "$target_path/.github"
-if [ -f "$repo_root/adapters/github-copilot-local/.github/copilot-instructions.md" ]; then
-  cp -f "$repo_root/adapters/github-copilot-local/.github/copilot-instructions.md" "$target_path/.github/copilot-instructions.md"
+if [ -f "$src_adapters/github-copilot-local/.github/copilot-instructions.md" ]; then
+  cp -f "$src_adapters/github-copilot-local/.github/copilot-instructions.md" "$target_path/.github/copilot-instructions.md"
   echo -e "  ${GREEN}[installed]${NC} .github/copilot-instructions.md (GitHub Copilot adapter)"
 fi
 
