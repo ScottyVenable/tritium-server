@@ -202,6 +202,36 @@ function Copy-One ([string]$name) {
 }
 foreach ($s in ($v41 + $helpers)) { Copy-One $s }
 
+# --- templates -------------------------------------------------------------
+Write-Log ''
+Write-Log "[3.5/5] Consolidating templates -> $tritiumHome\templates"
+$templatesDir = Join-Path $tritiumHome 'templates'
+if (-not (Test-Path $templatesDir)) {
+    if (-not $DryRun) { New-Item -ItemType Directory -Path $templatesDir -Force | Out-Null }
+}
+
+function Copy-TemplateDir ([string]$folder) {
+    $src = Join-Path $repoRoot $folder
+    $dst = Join-Path $templatesDir $folder
+    if (-not (Test-Path $src)) { return }
+    Write-Log "  copy template: $folder"
+    if (-not $DryRun) {
+        if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
+        Copy-Item -Path $src -Destination $dst -Recurse -Force
+    }
+}
+
+Copy-TemplateDir "agents"
+Copy-TemplateDir "world"
+Copy-TemplateDir "adapters"
+
+$settingsSrc = Join-Path $repoRoot "SETTINGS.example.jsonc"
+$settingsDst = Join-Path $templatesDir "SETTINGS.example.jsonc"
+if (Test-Path $settingsSrc) {
+    Write-Log "  copy template: SETTINGS.example.jsonc"
+    if (-not $DryRun) { Copy-Item $settingsSrc $settingsDst -Force }
+}
+
 # --- mailboxes -------------------------------------------------------------
 Write-Log ''
 Write-Log "[4/5] Agent mailboxes -> $mailboxRoot"

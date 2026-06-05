@@ -302,6 +302,39 @@ for s in $V41_SCRIPTS $HELPER_SCRIPTS; do
     _copy_one "$s"
 done
 
+# --- templates --------------------------------------------------------------
+_log ""
+_log "[3.5/5] Consolidating templates -> $TRITIUM_HOME/templates"
+TEMPLATES_DIR="$TRITIUM_HOME/templates"
+if [ "$DRY" -eq 0 ]; then
+    mkdir -p "$TEMPLATES_DIR"
+fi
+
+_copy_template_dir() {
+    local folder="$1"
+    local src="$REPO_ROOT/$folder"
+    local dst="$TEMPLATES_DIR/$folder"
+    if [ ! -d "$src" ]; then
+        return
+    fi
+    _log "  copy template: $folder"
+    if [ "$DRY" -eq 0 ]; then
+        rm -rf "$dst"
+        cp -R "$src" "$dst"
+    fi
+}
+
+_copy_template_dir "agents"
+_copy_template_dir "world"
+_copy_template_dir "adapters"
+
+if [ -f "$REPO_ROOT/SETTINGS.example.jsonc" ]; then
+    _log "  copy template: SETTINGS.example.jsonc"
+    if [ "$DRY" -eq 0 ]; then
+        cp "$REPO_ROOT/SETTINGS.example.jsonc" "$TEMPLATES_DIR/SETTINGS.example.jsonc"
+    fi
+fi
+
 # --- agent mailboxes --------------------------------------------------------
 _log ""
 _log "[4/5] Agent mailboxes -> $MAILBOX_ROOT"

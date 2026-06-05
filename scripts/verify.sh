@@ -122,21 +122,31 @@ _capitalize() {
     printf '%s%s' "$(printf '%s' "${s:0:1}" | tr '[:lower:]' '[:upper:]')" "${s:1}"
 }
 
-CLAUDE_OK=0; GEMINI_OK=0; COPILOT_OK=0
-for a in "${AGENTS[@]}"; do
-    f="$ROOT/adapters/claude-cli/agents/$a.md"
-    if [ -f "$f" ]; then CLAUDE_OK=$((CLAUDE_OK + 1)); _ok "adapter claude-cli/agents/$a.md"
-    else _fail "missing adapters/claude-cli/agents/$a.md"; fi
+CLAUDE_OK=0; GEMINI_OK=0; COPILOT_OK=0; CLINE_OK=0; CURSOR_OK=0; ANTIGRAVITY_OK=0
 
-    f="$ROOT/adapters/gemini-cli/agents/$a.md"
-    if [ -f "$f" ]; then GEMINI_OK=$((GEMINI_OK + 1)); _ok "adapter gemini-cli/agents/$a.md"
-    else _fail "missing adapters/gemini-cli/agents/$a.md"; fi
+f="$ROOT/adapters/claude-cli/CLAUDE.md"
+if [ -f "$f" ]; then CLAUDE_OK=1; _ok "adapter claude-cli/CLAUDE.md"
+else _fail "missing adapters/claude-cli/CLAUDE.md"; fi
 
-    cap="$(_capitalize "$a")"
-    f="$ROOT/adapters/github-copilot-local/.github/agents/$cap.agent.md"
-    if [ -f "$f" ]; then COPILOT_OK=$((COPILOT_OK + 1)); _ok "adapter github-copilot-local/.github/agents/$cap.agent.md"
-    else _fail "missing adapters/github-copilot-local/.github/agents/$cap.agent.md"; fi
-done
+f="$ROOT/adapters/gemini-cli/GEMINI.md"
+if [ -f "$f" ]; then GEMINI_OK=1; _ok "adapter gemini-cli/GEMINI.md"
+else _fail "missing adapters/gemini-cli/GEMINI.md"; fi
+
+f="$ROOT/adapters/github-copilot-local/.github/copilot-instructions.md"
+if [ -f "$f" ]; then COPILOT_OK=1; _ok "adapter github-copilot-local/.github/copilot-instructions.md"
+else _fail "missing adapters/github-copilot-local/.github/copilot-instructions.md"; fi
+
+f="$ROOT/adapters/cline/.clinerules"
+if [ -f "$f" ]; then CLINE_OK=1; _ok "adapter cline/.clinerules"
+else _fail "missing adapters/cline/.clinerules"; fi
+
+f="$ROOT/adapters/cursor/.cursorrules"
+if [ -f "$f" ]; then CURSOR_OK=1; _ok "adapter cursor/.cursorrules"
+else _fail "missing adapters/cursor/.cursorrules"; fi
+
+f="$ROOT/adapters/antigravity/.antigravityrules"
+if [ -f "$f" ]; then ANTIGRAVITY_OK=1; _ok "adapter antigravity/.antigravityrules"
+else _fail "missing adapters/antigravity/.antigravityrules"; fi
 
 # --- inbox CLI smoke test ---------------------------------------------------
 INBOX_STATUS="SKIP"
@@ -205,7 +215,7 @@ if [ -n "$GIT_VER" ]; then echo "- Git:     found $GIT_VER"
 else echo "- Git:     MISSING"; fi
 echo "- Mailboxes: $MAILBOX_PRESENT/9 present"
 echo "- Agent docs: $AGENT_MD_PRESENT/9 present"
-echo "- Adapters: claude-cli $CLAUDE_OK/9, gemini-cli $GEMINI_OK/9, copilot-local $COPILOT_OK/9"
+echo "- Adapters: claude-cli=$CLAUDE_OK, gemini-cli=$GEMINI_OK, copilot-local=$COPILOT_OK, cline=$CLINE_OK, cursor=$CURSOR_OK, antigravity=$ANTIGRAVITY_OK"
 echo "- Inbox CLI: $INBOX_STATUS"
 echo "- Ledger:  $LEDGER_STATUS"
 echo "- Optional integrations:"
