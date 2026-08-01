@@ -6,6 +6,8 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Status](https://img.shields.io/badge/status-pre--release-orange?style=flat-square)](https://github.com/ScottyVenable/tritium)
 
+![Tritium Dashboard](docs/assets/tritium_dashboard.gif)
+
 ---
 
 ## What is Tritium Team?
