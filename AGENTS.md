@@ -10,6 +10,7 @@ This file is the authoritative list of named agents in Tritium Team v4.1.
 | Jesse  | Repository Manager             | T2   | claude-sonnet-4.6 |
 | Vex    | Content and Asset Architect    | T2   | claude-sonnet-4.6 |
 | Rook   | QA and Release Engineer        | T3   | claude-opus-4.7   |
+| Tessa  | Private companion (optional)   | -    | (loads my-bots)   |
 
 ## Tier hierarchy
 
@@ -28,6 +29,7 @@ all T0-safe requests to Scout before escalating.
 
 Each agent has a spec at `.github/agents/<Name>.agent.md`.
 Scout also has a runtime directory at `agents/scout/`.
+Tessa loads from the private world book at ScottyVenable/my-bots/Tessa.
 
 ## Adding agents
 
